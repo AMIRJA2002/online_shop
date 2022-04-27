@@ -1,0 +1,92 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% load thumbnail %}
+{% block title %}
+    Your shopping cart
+{% endblock %}
+
+{% block content %}
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'shop/csss/style.css' %}">
+</head>
+<body>
+	<main class="page">
+	 	<section class="shopping-cart dark">
+	 		<div class="container">
+		        <div class="block-heading">
+		          <h2>Shopping Cart</h2>
+		          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc quam urna, dignissim nec auctor in, mattis vitae leo.</p>
+		        </div>
+		        <div class="content">
+	 				<div class="row">
+                        {% for item in cart %}
+                            {% with product=item.product %}
+                                <div class="col-md-12 col-lg-8">
+                                    <div class="items">
+                                        <div class="product">
+                                            <div class="row">
+                                                <div class="col-md-3">
+                                                    <a href="{{ product.get_absolute_url }}">
+                                                        {% thumbnail product.image 100x100 crop='smatr' as im %}
+                                                        <img class="img-fluid mx-auto d-block image" src="{{ im.url }}">
+                                                    </a>
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <div class="info">
+                                                        <div class="row">
+                                                            <div class="col-md-5 product-name">
+                                                                <div class="product-name">
+                                                                    <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+                                                                    <div class="product-info">
+                                                                        <div> <span class="value">{% if product.description %}{{ product.description|truncatechars:50|linebreaks }} {% else %} <light>product has no description</light>{% endif %}</span></div>
+                                                                    </div>
+                                                                </div>
+                                                            <form action="{% url "cart:cart_remove" product.id %}"
+                                                                method="post">
+                                                                <input type="submit" value="Remove">
+                                                                {% csrf_token %}
+                                                            </form>
+                                                            </div>
+                                                            <div class="col-md-4 quantity">
+                                                                    <label for="quantity">Quantity:</label>
+                                                                    <div>
+                                                                        <form action="{% url "cart:cart_add" product.id %}" method="post">
+                                                                            <div>
+                                                                            {{ item.update_quantity_form.quantity }}
+                                                                            {{ item.update_quantity_form.override }}
+                                                                            </div>
+                                                                            <input type="submit" value="Update">
+                                                                            {% csrf_token %}
+                                                                        </form>
+                                                                    </div>
+                                                            </div>
+                                                            <div class="col-md-3 price">
+                                                                <span>${{ product.price }}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endwith %}
+                        {% endfor %}
+			 			<div class="col-md-12 col-lg-4">
+			 				<div class="summary">
+			 					<h3>{% if cart.get_total_price == 0 %}Your cart is empty! :({% else %}Summary{% endif %}</h3>
+			 					<div class="summary-item"><span class="text">Total</span><span class="price">${{ cart.get_total_price }}</span></div>
+                                <a href="{% url 'orders:order_create' %}"><button type="button" class="btn btn-primary btn-lg btn-block">Checkout</button></a>
+                                <a href="{% url 'shop:product_list' %}"><button type="button" class="btn btn-primary btn-lg btn-block">Continue shopping</button></a>
+				 			</div>
+			 			</div>
+		 			</div>
+		 		</div>
+	 		</div>
+		</section>
+	</main>
+</body>
+{% endblock %}
